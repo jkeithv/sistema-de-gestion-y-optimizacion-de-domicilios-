@@ -1,0 +1,381 @@
+# Sistema de Gestión y Optimización de Domicilios
+
+## 1. Planteamiento del problema
+
+En la actualidad, algunos negocios que ofrecen servicios de domicilios en la ciudad de Valledupar gestionan sus pedidos mediante agendas físicas, mensajes informales, llamadas o registros manuales. Estas formas de organización pueden dificultar el control de la información y generar problemas en la asignación de los servicios, pérdida de datos, retrasos en las entregas y poca trazabilidad sobre el estado de cada pedido.
+
+La situación también puede afectar la coordinación entre la persona encargada de atender a los clientes, la central que organiza los servicios y los domiciliarios que realizan las entregas. Cuando la información se encuentra distribuida en diferentes medios, la persona encargada puede tardar en identificar qué domiciliario está disponible, cuál se encuentra más cerca del punto de recogida o entrega y qué servicios tiene asignados. Esto puede aumentar el tiempo de espera del cliente y dificultar la organización del trabajo de los domiciliarios.
+
+Otro problema es el seguimiento del servicio. Los métodos manuales no permiten consultar de manera sencilla el estado actual de un pedido, registrar los momentos importantes del recorrido ni informar al cliente cuando el domiciliario se encuentra próximo a llegar. Tampoco permiten centralizar información histórica que sirva para conocer cuántos servicios se realizan, cuánto tiempo tarda cada entrega, qué domiciliarios atienden más servicios o cuáles son los pedidos que presentan retrasos.
+
+Como respuesta a esta situación se propone el diseño de un sistema de información para la gestión y optimización de domicilios. El sistema estará orientado a tres actores principales: el cliente que realiza el pedido mediante el aplicativo, la central o persona encargada que recibe y programa los servicios, y el domiciliario encargado de realizar la entrega. El sistema permitirá registrar clientes, direcciones, pedidos, productos y servicios de domicilio, además de administrar la disponibilidad de los domiciliarios y la asignación de los servicios.
+
+Una característica importante de la propuesta será utilizar la ubicación registrada del domiciliario para apoyar la asignación del servicio. La central podrá consultar qué domiciliarios se encuentran disponibles y cuáles están en una ubicación conveniente para el servicio. La decisión de asignación quedará registrada para conservar la trazabilidad del proceso.
+
+El sistema también contemplará el registro de la ruta del domicilio y de la ubicación del domiciliario durante el servicio. La información de ruta podrá incluir distancia, tiempo estimado y una condición de tráfico utilizada para seleccionar o actualizar la ruta. De esta forma, el aplicativo podrá mostrar al cliente el estado del pedido y, cuando corresponda, indicar que el domiciliario se encuentra próximo a llegar. Para el domiciliario, la información de ruta servirá como apoyo para desplazarse hacia el destino.
+
+El propósito general es reducir el tiempo de espera entre la asignación del servicio, el desplazamiento del domiciliario y la entrega al cliente, mejorar la coordinación de los pedidos y facilitar el flujo de trabajo de las empresas que prestan servicios de domicilios. Además, la información almacenada permitirá generar un historial de los servicios y obtener datos sobre tiempos, estados y asignaciones que actualmente pueden ser difíciles de consultar.
+
+El sistema no busca reemplazar la decisión operativa de la central, sino proporcionar información organizada para que la asignación y el seguimiento sean más eficientes. En una implementación posterior, el aplicativo será desarrollado en Java y utilizará PostgreSQL como motor de base de datos, de acuerdo con las herramientas establecidas para el proyecto.
+
+## Objetivo del sistema
+
+Diseñar un sistema de información que permita registrar, organizar y monitorear los domicilios, apoyando la asignación de servicios a domiciliarios disponibles según su ubicación registrada y permitiendo el seguimiento del estado y de la ruta del servicio.
+
+## Alcance inicial
+
+El diseño contempla clientes, direcciones, pedidos, productos, central, empleados de la central, domiciliarios, vehículos, servicios de domicilio, ubicaciones y rutas. La integración real con GPS, mapas y tráfico se deja para la implementación posterior del aplicativo en Java.
+
+# Requisitos, preguntas y supuestos
+
+## 2. Requisitos de información
+
+### R01. Registrar clientes.
+El sistema debe almacenar los datos básicos necesarios para identificar y contactar a cada cliente.
+
+### R02. Registrar direcciones de entrega.
+Un cliente debe poder tener una o más direcciones registradas para sus pedidos.
+
+### R03. Registrar pedidos.
+El sistema debe almacenar cada pedido realizado por un cliente, su fecha y su estado.
+
+### R04. Registrar productos y detalles del pedido.
+Un pedido puede contener varios productos y debe conservarse la cantidad solicitada de cada producto.
+
+### R05. Registrar centrales y empleados encargados.
+El sistema debe identificar la central y el empleado que gestiona los servicios.
+
+### R06. Registrar domiciliarios.
+El sistema debe almacenar la información necesaria para identificar a los domiciliarios y controlar su disponibilidad.
+
+### R07. Registrar vehículos.
+El sistema debe permitir asociar un vehículo al domiciliario para apoyar la operación del servicio.
+
+### R08. Registrar servicios de domicilio.
+Cada servicio debe relacionarse con el pedido y registrar su asignación, estado y tiempos principales.
+
+### R09. Registrar ubicación del domiciliario.
+El sistema debe almacenar posiciones del domiciliario asociadas al servicio para apoyar el seguimiento.
+
+### R10. Registrar rutas.
+El sistema debe registrar la ruta utilizada o propuesta para el servicio, incluyendo distancia, tiempo estimado y condición de tráfico.
+
+### R11. Consultar el estado del pedido.
+El cliente y la central deben poder conocer el estado actual del servicio.
+
+### R12. Consultar la disponibilidad y ubicación de domiciliarios.
+La central debe poder identificar domiciliarios disponibles y su ubicación registrada para apoyar la asignación.
+
+### R13. Registrar la asignación.
+El sistema debe conservar qué domiciliario fue asignado a cada servicio y cuándo se realizó la asignación.
+
+### R14. Conservar historial operativo.
+El sistema debe permitir consultar posteriormente pedidos, servicios, estados, asignaciones y tiempos registrados.
+
+## 3. Preguntas y supuestos
+
+| Pregunta | Decisión / supuesto |
+|---|---|
+| ¿Un cliente puede realizar varios pedidos? | Sí. Un cliente puede realizar muchos pedidos; cada pedido pertenece a un solo cliente. |
+| ¿Un cliente puede tener varias direcciones? | Sí. Se permitirá registrar varias direcciones por cliente y seleccionar una para cada pedido. |
+| ¿Un pedido puede contener varios productos? | Sí. Se utilizará una entidad intermedia DetallePedido para resolver la relación muchos a muchos entre pedidos y productos. |
+| ¿Un producto puede aparecer en muchos pedidos? | Sí. Un producto puede formar parte de diferentes pedidos. |
+| ¿Un pedido puede tener más de un servicio de domicilio? | No en la operación normal. Un pedido genera un único servicio de domicilio. |
+| ¿Un servicio puede ser atendido por varios domiciliarios? | No. Para la primera versión, un servicio tiene un domiciliario asignado a la vez. Si la asignación cambia, se actualiza el registro del servicio y se conserva el historial mediante los registros de ubicación/estado en una evolución posterior. |
+| ¿Cómo se determina el domiciliario más conveniente? | La central consultará disponibilidad y ubicación registrada. Para esta primera versión se documenta como criterio principal la proximidad; en una implementación posterior se podrá incorporar tráfico, carga de trabajo y otros criterios. |
+| ¿Se guardará solamente la última ubicación? | No. Se almacenarán registros de ubicación asociados al servicio para permitir seguimiento e historial del recorrido. |
+| ¿La ruta será una entidad? | Sí. La ruta se considera una entidad porque tiene información propia como distancia, tiempo estimado, condición de tráfico y fecha de consulta. |
+| ¿El tráfico se almacenará como dato externo permanente? | Se almacenará como condición registrada de la ruta en el momento de consulta. La fuente externa de mapas/tráfico no forma parte de la Entrega 1. |
+| ¿Un domiciliario puede estar disponible sin tener un servicio? | Sí. La disponibilidad pertenece al domiciliario y se utilizará para apoyar la asignación. |
+| ¿Un domiciliario puede realizar varios servicios a lo largo del tiempo? | Sí, pero no se asumirá que puede transportar varios servicios simultáneamente en esta primera versión. |
+| ¿Una central puede tener varios empleados? | Sí. Una central puede tener varios empleados encargados de gestionar pedidos y servicios. |
+| ¿Un empleado puede gestionar muchos servicios? | Sí. Un empleado de la central puede gestionar múltiples servicios. |
+| ¿La aplicación calculará GPS real en esta entrega? | No. La Entrega 1 diseña los datos necesarios. La integración con GPS, mapas o tráfico se implementará posteriormente en Java si el alcance del proyecto lo permite. |
+
+## 4. Decisiones de diseño y justificación
+
+- Se separa Pedido de ServicioDomicilio porque el pedido representa lo solicitado por el cliente y el servicio representa la operación logística de entrega.
+- DetallePedido es necesario para resolver la relación N:M entre Pedido y Producto y para almacenar cantidad y precio unitario del producto dentro del pedido.
+- Ubicacion se modela como entidad porque una sola ubicación actual no permite conservar el historial del recorrido.
+- Ruta se modela como entidad porque una entrega puede tener diferentes consultas o actualizaciones de ruta y cada una posee datos propios.
+- EmpleadoCentral se separa de Central porque una central puede tener varios empleados y se necesita identificar quién gestionó el servicio.
+- Direccion se separa de Cliente porque un cliente puede registrar más de una dirección y la dirección utilizada debe quedar asociada al pedido.
+
+# Esquema relacional inicial
+
+## CLIENTE
+
+| Atributo | Tipo previsto | Clave / restricción | Nulo | Referencia |
+|---|---|---|---|---|
+| idCliente | INTEGER | PK | NO |  |
+| nombre | VARCHAR(120) |  | SÍ |  |
+| telefono | VARCHAR(120) |  | SÍ |  |
+| correo | VARCHAR(120) |  | SÍ |  |
+
+## DIRECCION
+
+| Atributo | Tipo previsto | Clave / restricción | Nulo | Referencia |
+|---|---|---|---|---|
+| idDireccion | INTEGER | PK | NO |  |
+| idCliente | INTEGER |  + FK | NO | CLIENTE(idCliente) |
+| direccion | VARCHAR(120) |  | SÍ |  |
+| barrio | VARCHAR(120) |  | SÍ |  |
+| ciudad | VARCHAR(120) |  | SÍ |  |
+| latitud | DECIMAL(9,6) |  | SÍ |  |
+| longitud | DECIMAL(9,6) |  | SÍ |  |
+
+## PEDIDO
+
+| Atributo | Tipo previsto | Clave / restricción | Nulo | Referencia |
+|---|---|---|---|---|
+| idPedido | INTEGER | PK | NO |  |
+| idCliente | INTEGER |  + FK | NO | CLIENTE(idCliente) |
+| idDireccion | INTEGER |  + FK | NO | DIRECCION(idDireccion) |
+| fechaHora | TIMESTAMP |  | SÍ |  |
+| estadoPedido | VARCHAR(120) |  | SÍ |  |
+| observaciones | VARCHAR(120) |  | SÍ |  |
+
+## PRODUCTO
+
+| Atributo | Tipo previsto | Clave / restricción | Nulo | Referencia |
+|---|---|---|---|---|
+| idProducto | INTEGER | PK | NO |  |
+| nombre | VARCHAR(120) |  | SÍ |  |
+| descripcion | VARCHAR(120) |  | SÍ |  |
+| precio | DECIMAL(12,2) |  | SÍ |  |
+
+## DETALLE_PEDIDO
+
+| Atributo | Tipo previsto | Clave / restricción | Nulo | Referencia |
+|---|---|---|---|---|
+| idPedidoFK | INTEGER | PK + FK | NO |  |
+| idProductoFK | INTEGER | PK + FK | NO |  |
+| cantidad | INTEGER |  | SÍ |  |
+| precioUnitario | DECIMAL(12,2) |  | SÍ |  |
+
+## CENTRAL
+
+| Atributo | Tipo previsto | Clave / restricción | Nulo | Referencia |
+|---|---|---|---|---|
+| idCentral | INTEGER | PK | NO |  |
+| nombre | VARCHAR(120) |  | SÍ |  |
+| telefono | VARCHAR(120) |  | SÍ |  |
+| direccion | VARCHAR(120) |  | SÍ |  |
+
+## EMPLEADO_CENTRAL
+
+| Atributo | Tipo previsto | Clave / restricción | Nulo | Referencia |
+|---|---|---|---|---|
+| idEmpleado | INTEGER | PK | NO |  |
+| idCentral | INTEGER |  + FK | NO | CENTRAL(idCentral) |
+| nombre | VARCHAR(120) |  | SÍ |  |
+| telefono | VARCHAR(120) |  | SÍ |  |
+| correo | VARCHAR(120) |  | SÍ |  |
+| cargo | VARCHAR(120) |  | SÍ |  |
+
+## DOMICILIARIO
+
+| Atributo | Tipo previsto | Clave / restricción | Nulo | Referencia |
+|---|---|---|---|---|
+| idDomiciliario | INTEGER | PK | NO |  |
+| nombre | VARCHAR(120) |  | SÍ |  |
+| telefono | VARCHAR(120) |  | SÍ |  |
+| estadoDisponibilidad | VARCHAR(120) |  | SÍ |  |
+
+## VEHICULO
+
+| Atributo | Tipo previsto | Clave / restricción | Nulo | Referencia |
+|---|---|---|---|---|
+| idVehiculo | INTEGER | PK | NO |  |
+| idDomiciliario | INTEGER |  + FK | NO | DOMICILIARIO(idDomiciliario) |
+| tipo | VARCHAR(120) |  | SÍ |  |
+| placa | VARCHAR(120) |  | SÍ |  |
+| estado | VARCHAR(120) |  | SÍ |  |
+
+## SERVICIO_DOMICILIO
+
+| Atributo | Tipo previsto | Clave / restricción | Nulo | Referencia |
+|---|---|---|---|---|
+| idServicio | INTEGER | PK | NO |  |
+| idPedido UNIQUE | INTEGER |  + FK | NO |  |
+| idEmpleado | INTEGER |  + FK | NO | EMPLEADO_CENTRAL(idEmpleado) |
+| idDomiciliario | INTEGER |  + FK | NO | DOMICILIARIO(idDomiciliario) |
+| fechaAsignacion | TIMESTAMP |  | SÍ |  |
+| fechaRecogida | TIMESTAMP |  | SÍ |  |
+| fechaEntrega | TIMESTAMP |  | SÍ |  |
+| estadoServicio | VARCHAR(120) |  | SÍ |  |
+
+## UBICACION
+
+| Atributo | Tipo previsto | Clave / restricción | Nulo | Referencia |
+|---|---|---|---|---|
+| idUbicacion | INTEGER | PK | NO |  |
+| idDomiciliario | INTEGER |  + FK | NO | DOMICILIARIO(idDomiciliario) |
+| idServicio | INTEGER |  + FK | NO | SERVICIO_DOMICILIO(idServicio) |
+| fechaHora | TIMESTAMP |  | SÍ |  |
+| latitud | DECIMAL(9,6) |  | SÍ |  |
+| longitud | DECIMAL(9,6) |  | SÍ |  |
+
+## RUTA
+
+| Atributo | Tipo previsto | Clave / restricción | Nulo | Referencia |
+|---|---|---|---|---|
+| idRuta | INTEGER | PK | NO |  |
+| idServicio | INTEGER |  + FK | NO | SERVICIO_DOMICILIO(idServicio) |
+| fechaHoraConsulta | TIMESTAMP |  | SÍ |  |
+| origenLatitud | DECIMAL(9,6) |  | SÍ |  |
+| origenLongitud | DECIMAL(9,6) |  | SÍ |  |
+| destinoLatitud | DECIMAL(9,6) |  | SÍ |  |
+| destinoLongitud | DECIMAL(9,6) |  | SÍ |  |
+| distanciaKm | DECIMAL(12,2) |  | SÍ |  |
+| tiempoEstimadoMin | INTEGER |  | SÍ |  |
+| condicionTrafico | VARCHAR(120) |  | SÍ |  |
+
+## Políticas de borrado
+
+| FK | Política | Justificación |
+|---|---|---|
+| DIRECCION.idCliente → CLIENTE.idCliente | RESTRICT | No se debe eliminar un cliente si todavía existen direcciones asociadas; primero deben resolverse sus datos relacionados. |
+| PEDIDO.idCliente → CLIENTE.idCliente | RESTRICT | Los pedidos forman parte del historial y no deben desaparecer automáticamente por eliminar un cliente. |
+| PEDIDO.idDireccion → DIRECCION.idDireccion | RESTRICT | Se evita eliminar una dirección que esté siendo utilizada por pedidos históricos. |
+| DETALLE_PEDIDO.idPedido → PEDIDO.idPedido | CASCADE | Los detalles no tienen sentido sin su pedido y pueden eliminarse junto con él si el modelo operativo permite eliminar pedidos. |
+| DETALLE_PEDIDO.idProducto → PRODUCTO.idProducto | RESTRICT | No se debe eliminar un producto que aparezca en pedidos históricos. |
+| EMPLEADO_CENTRAL.idCentral → CENTRAL.idCentral | RESTRICT | Se conserva la trazabilidad de quién gestionó los servicios. |
+| SERVICIO_DOMICILIO.idPedido → PEDIDO.idPedido | RESTRICT | Un servicio depende del pedido y forma parte del historial operativo. |
+| SERVICIO_DOMICILIO.idEmpleado → EMPLEADO_CENTRAL.idEmpleado | RESTRICT | No se debe borrar el empleado que dejó trazabilidad de la gestión. |
+| SERVICIO_DOMICILIO.idDomiciliario → DOMICILIARIO.idDomiciliario | RESTRICT | Se debe conservar quién realizó el servicio. |
+| VEHICULO.idDomiciliario → DOMICILIARIO.idDomiciliario | RESTRICT | Se evita perder la relación histórica del vehículo con su domiciliario. |
+| UBICACION.idDomiciliario → DOMICILIARIO.idDomiciliario | RESTRICT | Los registros de ubicación dependen de la identidad del domiciliario. |
+| UBICACION.idServicio → SERVICIO_DOMICILIO.idServicio | CASCADE | Las posiciones de un servicio no tienen sentido si se elimina el servicio. |
+| RUTA.idServicio → SERVICIO_DOMICILIO.idServicio | CASCADE | Las rutas registradas pertenecen al servicio y pueden eliminarse junto con él si se elimina el servicio. |
+
+# Diccionario de datos inicial
+
+## CLIENTE
+
+| Columna | Tipo previsto | Nulabilidad | Significado de negocio |
+|---|---|---|---|
+| idCliente | INTEGER | NO | Identificador único del cliente. |
+| nombre | VARCHAR(120) | SÍ | Nombre identificador de la persona o producto, según la tabla. |
+| telefono | VARCHAR(120) | SÍ | Número utilizado para contacto. |
+| correo | VARCHAR(120) | SÍ | Correo electrónico de contacto. |
+
+## DIRECCION
+
+| Columna | Tipo previsto | Nulabilidad | Significado de negocio |
+|---|---|---|---|
+| idDireccion | INTEGER | NO | Identificador único de la dirección. |
+| idCliente | INTEGER | NO | Identificador único del cliente. |
+| direccion | VARCHAR(120) | SÍ | Dirección de entrega registrada. |
+| barrio | VARCHAR(120) | SÍ | Barrio asociado a la dirección. |
+| ciudad | VARCHAR(120) | SÍ | Ciudad de la dirección. |
+| latitud | DECIMAL(9,6) | SÍ | Coordenada geográfica de latitud. |
+| longitud | DECIMAL(9,6) | SÍ | Coordenada geográfica de longitud. |
+
+## PEDIDO
+
+| Columna | Tipo previsto | Nulabilidad | Significado de negocio |
+|---|---|---|---|
+| idPedido | INTEGER | NO | Identificador único del pedido. |
+| idCliente | INTEGER | NO | Identificador único del cliente. |
+| idDireccion | INTEGER | NO | Identificador único de la dirección. |
+| fechaHora | TIMESTAMP | SÍ | Fecha y hora en que ocurrió o se registró el evento. |
+| estadoPedido | VARCHAR(120) | SÍ | Estado actual del pedido. |
+| observaciones | VARCHAR(120) | SÍ | Información adicional del pedido. |
+
+## PRODUCTO
+
+| Columna | Tipo previsto | Nulabilidad | Significado de negocio |
+|---|---|---|---|
+| idProducto | INTEGER | NO | Identificador único del producto. |
+| nombre | VARCHAR(120) | SÍ | Nombre identificador de la persona o producto, según la tabla. |
+| descripcion | VARCHAR(120) | SÍ | Descripción del producto. |
+| precio | DECIMAL(12,2) | SÍ | Precio actual registrado del producto. |
+
+## DETALLE_PEDIDO
+
+| Columna | Tipo previsto | Nulabilidad | Significado de negocio |
+|---|---|---|---|
+| idPedidoFK | INTEGER | NO | Dato operativo propio de la entidad. |
+| idProductoFK | INTEGER | NO | Dato operativo propio de la entidad. |
+| cantidad | INTEGER | SÍ | Cantidad solicitada del producto. |
+| precioUnitario | DECIMAL(12,2) | SÍ | Precio del producto en el momento de incluirlo en el pedido. |
+
+## CENTRAL
+
+| Columna | Tipo previsto | Nulabilidad | Significado de negocio |
+|---|---|---|---|
+| idCentral | INTEGER | NO | Identificador único de la central. |
+| nombre | VARCHAR(120) | SÍ | Nombre identificador de la persona o producto, según la tabla. |
+| telefono | VARCHAR(120) | SÍ | Número utilizado para contacto. |
+| direccion | VARCHAR(120) | SÍ | Dirección de entrega registrada. |
+
+## EMPLEADO_CENTRAL
+
+| Columna | Tipo previsto | Nulabilidad | Significado de negocio |
+|---|---|---|---|
+| idEmpleado | INTEGER | NO | Identificador único del empleado. |
+| idCentral | INTEGER | NO | Identificador único de la central. |
+| nombre | VARCHAR(120) | SÍ | Nombre identificador de la persona o producto, según la tabla. |
+| telefono | VARCHAR(120) | SÍ | Número utilizado para contacto. |
+| correo | VARCHAR(120) | SÍ | Correo electrónico de contacto. |
+| cargo | VARCHAR(120) | SÍ | Función o cargo del empleado de la central. |
+
+## DOMICILIARIO
+
+| Columna | Tipo previsto | Nulabilidad | Significado de negocio |
+|---|---|---|---|
+| idDomiciliario | INTEGER | NO | Identificador único del domiciliario. |
+| nombre | VARCHAR(120) | SÍ | Nombre identificador de la persona o producto, según la tabla. |
+| telefono | VARCHAR(120) | SÍ | Número utilizado para contacto. |
+| estadoDisponibilidad | VARCHAR(120) | SÍ | Indica si el domiciliario está disponible para recibir un servicio. |
+
+## VEHICULO
+
+| Columna | Tipo previsto | Nulabilidad | Significado de negocio |
+|---|---|---|---|
+| idVehiculo | INTEGER | NO | Identificador único del vehículo. |
+| idDomiciliario | INTEGER | NO | Identificador único del domiciliario. |
+| tipo | VARCHAR(120) | SÍ | Tipo de vehículo utilizado. |
+| placa | VARCHAR(120) | SÍ | Placa identificadora del vehículo. |
+| estado | VARCHAR(120) | SÍ | Estado operativo del vehículo o servicio. |
+
+## SERVICIO_DOMICILIO
+
+| Columna | Tipo previsto | Nulabilidad | Significado de negocio |
+|---|---|---|---|
+| idServicio | INTEGER | NO | Identificador único del servicio de domicilio. |
+| idPedido UNIQUE | INTEGER | NO | Dato operativo propio de la entidad. |
+| idEmpleado | INTEGER | NO | Identificador único del empleado. |
+| idDomiciliario | INTEGER | NO | Identificador único del domiciliario. |
+| fechaAsignacion | TIMESTAMP | SÍ | Momento en que el servicio fue asignado al domiciliario. |
+| fechaRecogida | TIMESTAMP | SÍ | Momento en que el domiciliario recoge el pedido. |
+| fechaEntrega | TIMESTAMP | SÍ | Momento en que el pedido es entregado. |
+| estadoServicio | VARCHAR(120) | SÍ | Estado operativo del servicio de domicilio. |
+
+## UBICACION
+
+| Columna | Tipo previsto | Nulabilidad | Significado de negocio |
+|---|---|---|---|
+| idUbicacion | INTEGER | NO | Identificador único del registro de ubicación. |
+| idDomiciliario | INTEGER | NO | Identificador único del domiciliario. |
+| idServicio | INTEGER | NO | Identificador único del servicio de domicilio. |
+| fechaHora | TIMESTAMP | SÍ | Fecha y hora en que ocurrió o se registró el evento. |
+| latitud | DECIMAL(9,6) | SÍ | Coordenada geográfica de latitud. |
+| longitud | DECIMAL(9,6) | SÍ | Coordenada geográfica de longitud. |
+
+## RUTA
+
+| Columna | Tipo previsto | Nulabilidad | Significado de negocio |
+|---|---|---|---|
+| idRuta | INTEGER | NO | Identificador único de la ruta registrada. |
+| idServicio | INTEGER | NO | Identificador único del servicio de domicilio. |
+| fechaHoraConsulta | TIMESTAMP | SÍ | Momento en que se consultó o registró la ruta. |
+| origenLatitud | DECIMAL(9,6) | SÍ | Latitud del punto de origen de la ruta. |
+| origenLongitud | DECIMAL(9,6) | SÍ | Longitud del punto de origen de la ruta. |
+| destinoLatitud | DECIMAL(9,6) | SÍ | Latitud del destino de la ruta. |
+| destinoLongitud | DECIMAL(9,6) | SÍ | Longitud del destino de la ruta. |
+| distanciaKm | DECIMAL(12,2) | SÍ | Distancia estimada o registrada de la ruta en kilómetros. |
+| tiempoEstimadoMin | INTEGER | SÍ | Tiempo estimado de recorrido en minutos. |
+| condicionTrafico | VARCHAR(120) | SÍ | Condición de tráfico registrada para la ruta. |
+
