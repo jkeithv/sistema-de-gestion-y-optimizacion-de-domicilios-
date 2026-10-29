@@ -3,7 +3,8 @@
  Uso:   .\database\reconstruir.ps1
         .\database\reconstruir.ps1 -ConPruebas                # + pruebas de restricciones
         .\database\reconstruir.ps1 -ConDatos                  # + datos semilla y su verificacion
-        .\database\reconstruir.ps1 -ConPruebas -ConDatos      # todo
+        .\database\reconstruir.ps1 -ConConsultas             # datos + banco de consultas + verificacion a mano
+        .\database\reconstruir.ps1 -ConPruebas -ConConsultas  # todo
         .\database\reconstruir.ps1 -Db domicilios -User postgres -DbHost localhost
  Nota: la contrasena NO va en este archivo; usa  $env:PGPASSWORD = "..."  en tu sesion.
 #>
@@ -13,11 +14,13 @@ param(
     [string]$DbHost = "localhost",
     [int]$Port = 5432,
     [switch]$ConPruebas,
-    [switch]$ConDatos
+    [switch]$ConDatos,
+    [switch]$ConConsultas
 )
 $ErrorActionPreference = "Stop"
 $env:PGCLIENTENCODING = "UTF8"
 $raiz = $PSScriptRoot
+if ($ConConsultas) { $ConDatos = $true }   # las consultas necesitan los datos
 
 function Invoke-Sql([string]$archivo) {
     psql -h $DbHost -p $Port -U $User -d $Db -v ON_ERROR_STOP=1 -q -f $archivo
@@ -44,5 +47,11 @@ if ($ConDatos) {
     }
     Write-Host ">> Verificando datos semilla" -ForegroundColor Cyan
     Invoke-Sql (Join-Path $raiz "pruebas\verificar_semilla.sql")
+}
+if ($ConConsultas) {
+    Write-Host ">> Banco de consultas" -ForegroundColor Cyan
+    Invoke-Sql (Join-Path $raiz "consultas\banco_de_consultas.sql")
+    Write-Host ">> Verificando consultas contra calculos a mano" -ForegroundColor Cyan
+    Invoke-Sql (Join-Path $raiz "pruebas\verificar_consultas.sql")
 }
 Write-Host "Esquema construido correctamente en '$Db'." -ForegroundColor Green
