@@ -1,0 +1,42 @@
+# Diagrama EER — descripción
+
+El modelo representa el proceso desde el registro del cliente y su pedido hasta la asignación y seguimiento del servicio de domicilio.
+
+## Entidades
+- **CLIENTE**: idCliente PK, nombre, telefono, correo
+- **DIRECCION**: idDireccion PK, idCliente FK, direccion, barrio, ciudad, latitud, longitud
+- **PEDIDO**: idPedido PK, idCliente FK, idDireccion FK, fechaHora, estadoPedido, observaciones
+- **PRODUCTO**: idProducto PK, nombre, descripcion, precio
+- **DETALLE_PEDIDO**: idPedido PK/FK, idProducto PK/FK, cantidad, precioUnitario
+- **CENTRAL**: idCentral PK, nombre, telefono, direccion
+- **EMPLEADO_CENTRAL**: idEmpleado PK, idCentral FK, nombre, telefono, correo, cargo
+- **DOMICILIARIO**: idDomiciliario PK, nombre, telefono, estadoDisponibilidad
+- **VEHICULO**: idVehiculo PK, idDomiciliario FK, tipo, placa, estado
+- **SERVICIO_DOMICILIO**: idServicio PK, idPedido FK UNIQUE, idEmpleado FK, idDomiciliario FK, fechaAsignacion, fechaRecogida, fechaEntrega, estadoServicio
+- **UBICACION**: idUbicacion PK, idDomiciliario FK, idServicio FK, fechaHora, latitud, longitud
+- **RUTA**: idRuta PK, idServicio FK, fechaHoraConsulta, origenLatitud, origenLongitud, destinoLatitud, destinoLongitud, distanciaKm, tiempoEstimadoMin, condicionTrafico
+
+## Relaciones y cardinalidades
+
+- **CLIENTE — DIRECCION (1:N)**: Un cliente puede registrar varias direcciones; cada dirección pertenece a un cliente.
+- **CLIENTE — PEDIDO (1:N)**: Un cliente puede realizar muchos pedidos; cada pedido pertenece a un cliente.
+- **DIRECCION — PEDIDO (1:N)**: Una dirección puede ser utilizada en varios pedidos; cada pedido usa una dirección de entrega.
+- **PEDIDO — DETALLE_PEDIDO (1:N)**: Un pedido tiene uno o varios detalles.
+- **PRODUCTO — DETALLE_PEDIDO (1:N)**: Un producto puede aparecer en muchos detalles.
+- **CENTRAL — EMPLEADO_CENTRAL (1:N)**: Una central puede tener varios empleados.
+- **EMPLEADO_CENTRAL — SERVICIO_DOMICILIO (1:N)**: Un empleado puede gestionar varios servicios.
+- **DOMICILIARIO — SERVICIO_DOMICILIO (1:N)**: Un domiciliario puede realizar muchos servicios a lo largo del tiempo; cada servicio tiene un domiciliario asignado.
+- **DOMICILIARIO — VEHICULO (1:0..N)**: Un domiciliario puede tener cero o varios vehículos registrados; un vehículo pertenece a un domiciliario.
+- **DOMICILIARIO — UBICACION (1:N)**: Un domiciliario puede generar muchos registros de ubicación.
+- **SERVICIO_DOMICILIO — UBICACION (1:N)**: Un servicio puede tener muchos puntos de ubicación registrados.
+- **SERVICIO_DOMICILIO — RUTA (1:N)**: Un servicio puede tener varias consultas/actualizaciones de ruta.
+- **PEDIDO — SERVICIO_DOMICILIO (1:1)**: En la operación definida, cada pedido genera un único servicio de domicilio.
+
+## Decisiones no obvias
+
+- Se separa Pedido de ServicioDomicilio porque el pedido representa lo solicitado por el cliente y el servicio representa la operación logística de entrega.
+- DetallePedido es necesario para resolver la relación N:M entre Pedido y Producto y para almacenar cantidad y precio unitario del producto dentro del pedido.
+- Ubicacion se modela como entidad porque una sola ubicación actual no permite conservar el historial del recorrido.
+- Ruta se modela como entidad porque una entrega puede tener diferentes consultas o actualizaciones de ruta y cada una posee datos propios.
+- EmpleadoCentral se separa de Central porque una central puede tener varios empleados y se necesita identificar quién gestionó el servicio.
+- Direccion se separa de Cliente porque un cliente puede registrar más de una dirección y la dirección utilizada debe quedar asociada al pedido.
