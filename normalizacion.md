@@ -12,7 +12,7 @@ Para cada tabla se listan las dependencias funcionales (DF) relevantes, las clav
 - **3FN:** no hay dependencias transitivas entre atributos no clave.
 - **BCNF:** el determinante de toda DF es una superclave.
 
-Las DF salen de las reglas del enunciado y de los supuestos de la Entrega 1 (sección 3). Los supuestos que se usan aparecen indicados.
+
 
 ## 2. Verificación tabla por tabla
 
@@ -72,7 +72,7 @@ Esto requiere que `UBICACION.idServicio` admita NULL, lo cual no es así en el e
 | E2 | `RUTA.destinoLatitud/Longitud` frente a las coordenadas de `DIRECCION` | El destino de entrega coincide con la dirección del pedido | Cada ruta es una consulta puntual y su destino puede ser el punto de recogida o el de entrega. Además, la dirección del cliente puede corregirse después y la ruta debe conservar lo que se consultó. Es un dato de cada consulta, no una dependencia de `idServicio`. |
 | E3 | `SERVICIO_DOMICILIO.estadoServicio` frente a las fechas de recogida y entrega | El estado se puede inferir de qué fechas están registradas | No es una DF estricta: hay estados sin fecha asociada (asignado, cancelado). Se mantiene y se protege con un `CHECK` que relacione estado y fechas, por ejemplo `fechaEntrega IS NULL OR estadoServicio = 'ENTREGADO'`. |
 
-## 5. Recomendaciones para las migraciones (coordinar con Andrea)
+## 5. Recomendaciones para las migraciones 
 
 | Qué | Dónde | Razón |
 |---|---|---|
@@ -83,4 +83,4 @@ Esto requiere que `UBICACION.idServicio` admita NULL, lo cual no es así en el e
 | `UBICACION.idServicio` admite NULL | `UBICACION` | Permite posiciones sin servicio activo (R12) y justifica H2. |
 | `CHECK` de estados válidos | `PEDIDO`, `SERVICIO_DOMICILIO`, `DOMICILIARIO` | Hoy son `VARCHAR(120)` libres; la rúbrica los exige como `CHECK`. |
 
-Estas recomendaciones cambian el DDL de Andrea. Como una migración ya aplicada no se edita, si alguna ya está en el repositorio debe entrar como una migración nueva.
+
